@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Secondary School Library System - Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+
+    <!-- Logo / Banner -->
+    <div class="text-center mb-5">
+        <img src="/images/library-logo.png" alt="Library Logo" class="mb-3" style="max-height: 120px;">
+        <h1 class="text-primary fw-bold">📘 Secondary School Library System</h1>
+        <p class="text-muted lead">A Smart Way to Manage School Library Resources in Tanzania</p>
+    </div>
+
+    <!-- System Overview -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-10">
+            <div class="row row-cols-1 row-cols-md-3 g-4 text-center">
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">📚 Book Management</h5>
+                            <p class="card-text">Easily add, update, and categorize library books for students and teachers.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">👥 User Tracking</h5>
+                            <p class="card-text">Track student and staff borrowing records and access history with ease.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title text-warning">📈 Reports</h5>
+                            <p class="card-text">Generate borrowing reports and summaries for school administrators.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Button -->
+    <div class="text-center mb-5">
+        <a th:href="@{/login}" class="btn btn-primary btn-lg px-5">Login to Access System</a>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <h5 class="text-dark mb-3">📞 Contact Us</h5>
+            <p class="mb-1">Secondary School Library Office</p>
+            <p class="mb-1">P.O. Box 173, Igunga, Tanzania</p>
+            <p class="mb-1">Phone: +255 765 566 773</p>
+            <p>Email: <a href="mailto:library@school.ac.tz">library@school.ac.tz</a></p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center text-muted mt-5">
+        <p class="mb-1">&copy; 2025 Your Secondary School, Tanzania. All rights reserved.</p>
+        <p class="small mb-0">
+            Developed by <strong>Eng. Meshack Venance Bundala</strong> &mdash;
+            <a href="mailto:meshackvenance7@gmail.com">meshackvenance7@gmail.com</a> |
+            <span>+255 688 134 882</span>
+        </p>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
