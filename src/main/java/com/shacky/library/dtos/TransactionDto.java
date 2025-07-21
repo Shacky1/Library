@@ -17,7 +17,7 @@ public class TransactionDto {
     private String bookAuthor;
     private String bookTitle;
     private String bookSubject;
-    private Long bookNumber;
+    private String bookNumber;
     private String bookGradeLevel;
     private Long userId;
     private String userType;
