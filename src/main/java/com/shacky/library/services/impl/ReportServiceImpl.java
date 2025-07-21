@@ -27,31 +27,30 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<BookDto> getTopBorrowedBooks() {
-        // Count how many times each book ID appears across all transactions
-        Map<Long, Long> borrowCountMap = transactionRepository.findAll().stream()
-                .collect(Collectors.groupingBy(t -> t.getBook().getId(), Collectors.counting()));
+        // Group transactions by book title and grade level
+        Map<String, Long> borrowCountMap = transactionRepository.findAll().stream()
+                .filter(tx -> tx.getBook() != null &&
+                        (tx.getStatus().equalsIgnoreCase("BORROWED") || tx.getStatus().equalsIgnoreCase("RETURNED")))
+                .collect(Collectors.groupingBy(
+                        tx -> tx.getBook().getTitle() + "||" + tx.getBook().getGradeLevel(),
+                        Collectors.counting()
+                ));
 
         // Sort by borrow count descending and take top 5
         return borrowCountMap.entrySet().stream()
-                .sorted(Map.Entry.<Long, Long>comparingByValue(Comparator.reverseOrder()))
+                .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder()))
                 .limit(5)
                 .map(entry -> {
-                    Optional<Book> bookOpt = bookRepository.findById(entry.getKey());
-                    return bookOpt.map(book -> BookDto.builder()
-                            .id(book.getId())
-                            .title(book.getTitle())
-                            .author(book.getAuthor())
-                            .subject(book.getSubject())
-                            .gradeLevel(book.getGradeLevel())
-                            .category(book.getCategory())
-                            .price(book.getPrice())
-                            .totalCopies(book.getTotalCopies())
-                            .availableCopies(book.getAvailableCopies())
+                    String[] parts = entry.getKey().split("\\|\\|");
+                    String title = parts[0];
+                    String gradeLevel = parts.length > 1 ? parts[1] : "Unknown";
+
+                    return BookDto.builder()
+                            .title(title)
+                            .gradeLevel(gradeLevel)
                             .borrowCount(entry.getValue())
-                            .build()
-                    ).orElse(null);
+                            .build();
                 })
-                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
@@ -70,8 +69,9 @@ public class ReportServiceImpl implements ReportService {
                     return userOpt.map(user -> UserDto.builder()
                             .id(user.getId())
                             .firstName(user.getFirstName())
+                            .middleName(user.getMiddleName())
                             .lastName(user.getLastName())
-                            //.email(user.getEmail())
+                            .email(user.getEmail())
                             .userType(user.getUserType())
                             .clsRoom(user.getClsRoom())
                             .totalBorrowed(entry.getValue())
@@ -96,7 +96,9 @@ public class ReportServiceImpl implements ReportService {
                         .bookSubject(tx.getBook().getSubject())
                         .userId(tx.getUser().getId())
                         .userFirstName(tx.getUser().getFirstName())
+                        .userMiddleName(tx.getUser().getMiddleName())
                         .userLastName(tx.getUser().getLastName())
+                        .userEmail(tx.getUser().getEmail())
                         .userType(tx.getUser().getUserType())
                         .status(tx.getStatus())
                         .borrowDate(tx.getBorrowDate())
@@ -109,4 +111,5 @@ public class ReportServiceImpl implements ReportService {
     public long getTotalTransactionCount() {
         return transactionRepository.count();
     }
+
 }

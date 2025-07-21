@@ -64,9 +64,8 @@
                         <th>Grade</th>
                         <th>Year</th>
                         <th>Category</th>
+                        <th>Number</th>
                         <th>Price</th>
-                        <th>Total</th>
-                        <th>Available</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
@@ -79,9 +78,8 @@
                         <td th:text="${book.gradeLevel}">Grade</td>
                         <td th:text="${book.publicationYear}">2023</td>
                         <td th:text="${book.category}">Category</td>
+                        <td th:text="${book.bookNumber}">Category</td>
                         <td th:text="${book.price}">100.00</td>
-                        <td th:text="${book.totalCopies}">10</td>
-                        <td th:text="${book.availableCopies}">5</td>
                         <td>
                             <div class="btn-group" role="group">
                                 <a th:href="@{'/books/' + ${book.id}}" class="btn btn-sm btn-info text-white">View</a>

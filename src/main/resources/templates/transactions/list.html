@@ -71,6 +71,9 @@
                     <tr>
                         <th>#</th>
                         <th>Book Title</th>
+                        <th>Book Subject</th>
+                        <th>Book GradeLevel</th>
+                        <th>Book Number</th>
                         <th>User</th>
                         <th>Status</th>
                         <th>Borrow Date</th>
@@ -82,6 +85,9 @@
                     <tr th:each="tx, iterStat : ${transactions}">
                         <th scope="row" th:text="${iterStat.count}">1</th>
                         <td th:text="${tx.bookTitle}">Book Title</td>
+                        <td th:text="${tx.bookSubject}">Book Subject</td>
+                        <td th:text="${tx.bookGradeLevel}">Book GradeLeve</td>
+                        <td th:text="${tx.bookNumber}">Book Number</td>
                         <td th:text="${tx.fullName}">User Full Name</td>
                         <td th:text="${tx.status}">borrowed</td>
                         <td th:text="${tx.borrowDate}">2025-07-19</td>

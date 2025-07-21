@@ -18,7 +18,7 @@
     </div>
 
     <div class="row">
-        <!-- Offcanvas Sidebar for Small Screens -->
+        <!-- Offcanvas Sidebar -->
         <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="sidebarMenu">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title text-primary">Library System</h5>
@@ -30,12 +30,12 @@
                     <li class="nav-item"><a class="nav-link" href="/books">Books</a></li>
                     <li class="nav-item"><a class="nav-link" href="/users">Users</a></li>
                     <li class="nav-item"><a class="nav-link" href="/transactions">Transactions</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/reports">Reports</a></li>
+                    <li class="nav-item"><a class="nav-link active fw-bold" href="/reports">Reports</a></li>
                 </ul>
             </div>
         </div>
 
-        <!-- Static Sidebar for Medium+ Screens -->
+        <!-- Static Sidebar -->
         <nav class="col-md-3 col-lg-2 d-none d-md-block bg-white border-end py-4">
             <h4 class="text-primary text-center">Library System</h4>
             <ul class="nav flex-column mt-4">
@@ -43,7 +43,7 @@
                 <li class="nav-item"><a class="nav-link" href="/books">Books</a></li>
                 <li class="nav-item"><a class="nav-link" href="/users">Users</a></li>
                 <li class="nav-item"><a class="nav-link" href="/transactions">Transactions</a></li>
-                <li class="nav-item"><a class="nav-link" href="/reports">Reports</a></li>
+                <li class="nav-item"><a class="nav-link active fw-bold" href="/reports">Reports</a></li>
             </ul>
         </nav>
 
@@ -73,14 +73,14 @@
 
             <!-- Top Borrowed Books -->
             <div class="mb-5">
-                <h3 class="text-primary mb-3">Top Borrowed Books</h3>
+                <h3 class="text-primary mb-3">Top Borrowed Books by Title & Grade Level</h3>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped text-center align-middle">
                         <thead class="table-primary">
                         <tr>
                             <th>#</th>
                             <th>Title</th>
-                            <th>Author</th>
+                            <th>Grade Level</th>
                             <th>Borrow Count</th>
                         </tr>
                         </thead>
@@ -88,11 +88,11 @@
                         <tr th:each="book, iStat : ${topBooks}">
                             <td th:text="${iStat.count}">1</td>
                             <td th:text="${book.title}">Sample Title</td>
-                            <td th:text="${book.author}">Sample Author</td>
+                            <td th:text="${book.gradeLevel}">Grade</td>
                             <td th:text="${book.borrowCount}">0</td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(topBooks)}">
-                            <td colspan="4" class="text-muted">No borrowed books yet.</td>
+                            <td colspan="4" class="text-muted">No borrowed books found.</td>
                         </tr>
                         </tbody>
                     </table>
@@ -109,14 +109,14 @@
                             <th>#</th>
                             <th>Name</th>
                             <th>Email</th>
-                            <th>Books Borrowed</th>
+                            <th>Total Borrowed</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="user, iStat : ${activeUsers}">
                             <td th:text="${iStat.count}">1</td>
                             <td th:text="${user.fullName}">User Name</td>
-                            <td th:text="${user.email}">user@example.com</td>
+                            <td th:text="${user.email}">Email</td>
                             <td th:text="${user.totalBorrowed}">0</td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(activeUsers)}">
@@ -137,6 +137,7 @@
                             <th>#</th>
                             <th>Book Title</th>
                             <th>User</th>
+                            <th>Grade Level</th>
                             <th>Borrow Date</th>
                             <th>Due Date</th>
                         </tr>
@@ -145,16 +146,22 @@
                         <tr th:each="tx, iStat : ${overdues}">
                             <td th:text="${iStat.count}">1</td>
                             <td th:text="${tx.bookTitle}">Book Title</td>
-                            <td th:text="${tx.fullName}">User Name</td>
+                            <td th:text="${tx.fullName}">User</td>
+                            <td th:text="${tx.gradeLevel}">Grade</td>
                             <td th:text="${#temporals.format(tx.borrowDate, 'yyyy-MM-dd')}">2025-01-01</td>
-                            <td th:text="${#temporals.format(tx.returnDate, 'yyyy-MM-dd')}">2025-01-15</td>
+                            <td th:text="${#temporals.format(tx.returnDate, 'yyyy-MM-dd')}">2025-01-10</td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(overdues)}">
-                            <td colspan="5" class="text-muted">No overdue transactions.</td>
+                            <td colspan="6" class="text-muted">No overdue transactions.</td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- Footer Note -->
+            <div class="alert alert-secondary mt-5">
+                <strong>Note:</strong> Borrow counts are grouped by <em>Book Title</em> and <em>Grade Level</em>. Each book is counted once per transaction.
             </div>
         </main>
     </div>

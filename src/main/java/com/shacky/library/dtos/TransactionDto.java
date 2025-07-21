@@ -17,24 +17,31 @@ public class TransactionDto {
     private String bookAuthor;
     private String bookTitle;
     private String bookSubject;
+    private Long bookNumber;
+    private String bookGradeLevel;
     private Long userId;
     private String userType;
     private String userFirstName;
+    private String userMiddleName;
     private String userLastName;
+    private String userEmail;
     private String status;
     private LocalDate borrowDate;
     private LocalDate returnDate;
 
     public String getFullName() {
-        if (userFirstName == null && userLastName == null) {
+        if (userFirstName == null &&userMiddleName==null && userLastName == null) {
             return "";
         }
         if (userFirstName == null) {
-            return userLastName;
+            return userMiddleName +" " + userLastName;
+        }
+        if (userMiddleName == null) {
+            return userFirstName +" "+userLastName;
         }
         if (userLastName == null) {
-            return userFirstName;
+            return userFirstName +" "+userMiddleName;
         }
-        return userFirstName + " " + userLastName;
+        return userFirstName + " " +userMiddleName+" " + userLastName;
     }
 }

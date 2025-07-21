@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,7 +23,9 @@ public class UserServiceImpl implements UserService {
         return UserDto.builder()
                 .id(user.getId())
                 .firstName(user.getFirstName())
+                .middleName(user.getMiddleName())
                 .lastName(user.getLastName())
+                .email(user.getEmail())
                 .userType(user.getUserType())
                 .clsRoom(user.getClsRoom())
                 .build();
@@ -34,7 +37,9 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setId(dto.getId());
         user.setFirstName(dto.getFirstName());
+        user.setMiddleName(dto.getMiddleName());
         user.setLastName(dto.getLastName());
+        user.setEmail(dto.getEmail());
         user.setUserType(dto.getUserType());
         user.setClsRoom(dto.getClsRoom());
         return user;
@@ -42,6 +47,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto createUser(UserDto userDto) {
+        // Check for duplicates by full name
+        Optional<User> existingUser = userRepository.findByFirstNameAndMiddleNameAndLastName(
+                userDto.getFirstName(),
+                userDto.getMiddleName(),
+                userDto.getLastName()
+        );
+
+        if (existingUser.isPresent()) {
+            // Optional: throw a custom exception or return null/DTO
+            throw new IllegalArgumentException("User with the same full name already exists.");
+        }
+
         User user = toEntity(userDto);
         User saved = userRepository.save(user);
         return toDto(saved);
@@ -52,20 +69,22 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id)
                 .map(existingUser -> {
                     existingUser.setFirstName(userDto.getFirstName());
+                    existingUser.setMiddleName(userDto.getMiddleName());
                     existingUser.setLastName(userDto.getLastName());
+                    existingUser.setEmail(userDto.getEmail());
                     existingUser.setUserType(userDto.getUserType());
                     existingUser.setClsRoom(userDto.getClsRoom());
                     User updated = userRepository.save(existingUser);
                     return toDto(updated);
                 })
-                .orElse(null);  // or throw exception if preferred
+                .orElse(null);
     }
 
     @Override
     public UserDto getUserById(Long id) {
         return userRepository.findById(id)
                 .map(this::toDto)
-                .orElse(null);  // or throw exception if preferred
+                .orElse(null);
     }
 
     @Override
@@ -80,4 +99,10 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
+    @Override
+    public boolean existsByFullName(String firstName, String middleName, String lastName) {
+        return userRepository.findByFirstNameAndMiddleNameAndLastName(firstName, middleName, lastName).isPresent();
+    }
+
 }

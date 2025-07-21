@@ -55,9 +55,8 @@ public class BookServiceImp implements BookService {
                 .author(book.getAuthor())
                 .gradeLevel(book.getGradeLevel())
                 .publicationYear(book.getPublicationYear())
-                .totalCopies(book.getTotalCopies())
-                .availableCopies(book.getAvailableCopies())
                 .price(book.getPrice())
+                .bookNumber(book.getBookNumber())
                 .category(book.getCategory())
                 .build();
     }
@@ -69,9 +68,8 @@ public class BookServiceImp implements BookService {
                 .author(dto.getAuthor())
                 .gradeLevel(dto.getGradeLevel())
                 .publicationYear(dto.getPublicationYear())
-                .totalCopies(dto.getTotalCopies())
-                .availableCopies(dto.getAvailableCopies())
                 .price(dto.getPrice())
+                .bookNumber(dto.getBookNumber())
                 .category(dto.getCategory())
                 .build();
     }

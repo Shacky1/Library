@@ -53,19 +53,16 @@ public class ReportController {
             long totalTransactions = reportService.getTotalTransactionCount();
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-            // Set page margins: left, right, top, bottom
             Document document = new Document(PageSize.A4, 36, 36, 54, 72);
             PdfWriter.getInstance(document, out);
             document.open();
 
-            // Define colors (Bootstrap theme)
-            BaseColor primaryColor = new BaseColor(13, 110, 253);  // #0d6efd
-            BaseColor successColor = new BaseColor(25, 135, 84);   // #198754
-            BaseColor dangerColor = new BaseColor(220, 53, 69);    // #dc3545
+            // Colors and fonts
+            BaseColor primaryColor = new BaseColor(13, 110, 253);
+            BaseColor successColor = new BaseColor(25, 135, 84);
+            BaseColor dangerColor = new BaseColor(220, 53, 69);
             BaseColor lightGray = new BaseColor(240, 240, 240);
 
-            // Fonts
             Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22, primaryColor);
             Font subtitleFont = FontFactory.getFont(FontFactory.HELVETICA, 14, BaseColor.GRAY);
             Font sectionTitleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, primaryColor);
@@ -73,24 +70,22 @@ public class ReportController {
             Font tableBodyFont = FontFactory.getFont(FontFactory.HELVETICA, 12, BaseColor.BLACK);
             Font smallGrayFont = FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10, BaseColor.GRAY);
 
-            // Title centered
+            // Title
             Paragraph title = new Paragraph("Library Reports", titleFont);
             title.setAlignment(Element.ALIGN_CENTER);
             document.add(title);
 
-            // Date right aligned below title
             Paragraph dateParagraph = new Paragraph("Date: " + LocalDate.now().toString(), smallGrayFont);
             dateParagraph.setAlignment(Element.ALIGN_RIGHT);
             dateParagraph.setSpacingAfter(10);
             document.add(dateParagraph);
 
-            // Subtitle centered
             Paragraph subtitle = new Paragraph("Real-time overview of library activities", subtitleFont);
             subtitle.setAlignment(Element.ALIGN_CENTER);
             subtitle.setSpacingAfter(20);
             document.add(subtitle);
 
-            // Total Transactions Summary card style
+            // Summary
             PdfPTable summaryTable = new PdfPTable(1);
             summaryTable.setWidthPercentage(40);
             summaryTable.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -115,18 +110,30 @@ public class ReportController {
             document.add(summaryTable);
 
             // Top Borrowed Books section
-            document.add(new Paragraph("Top Borrowed Books", sectionTitleFont));
-            document.add(new Paragraph(" ")); // spacer
-            PdfPTable bookTable = new PdfPTable(new float[]{1, 5, 4, 2});
+            document.add(new Paragraph("Top Borrowed Books by Title & Grade", sectionTitleFont));
+            document.add(new Paragraph(" "));
+            PdfPTable bookTable = new PdfPTable(new float[]{1, 5, 2, 2});
             bookTable.setWidthPercentage(100);
-            addColoredTableHeader(bookTable, tableHeaderFont, primaryColor, "No.", "Title", "Author", "Borrow Count");
+            addColoredTableHeader(bookTable, tableHeaderFont, primaryColor, "No.", "Title", "Grade", "Borrow Count");
 
             int count = 1;
             for (BookDto book : topBorrowedBooks) {
-                addTableRow(bookTable, tableBodyFont, count++, book.getTitle(), book.getAuthor(),
-                        String.valueOf(book.getBorrowCount() != null ? book.getBorrowCount() : 0), lightGray);
+                addTableRow(bookTable, tableBodyFont, count++,
+                        book.getTitle(),
+                        book.getGradeLevel(),
+                        String.valueOf(book.getBorrowCount() != null ? book.getBorrowCount() : 0),
+                        lightGray);
             }
             document.add(bookTable);
+
+            Paragraph note = new Paragraph(
+                    "Note: Borrow count is grouped by book title and grade level to reflect usage across all available copies.",
+                    smallGrayFont
+            );
+            note.setSpacingBefore(5);
+            note.setAlignment(Element.ALIGN_LEFT);
+            document.add(note);
+
             document.add(new Paragraph(" "));
 
             // Top Active Users section
@@ -144,7 +151,7 @@ public class ReportController {
             document.add(userTable);
             document.add(new Paragraph(" "));
 
-            // Overdue Transactions section
+            // Overdue Transactions
             document.add(new Paragraph("Overdue Transactions", new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD, dangerColor)));
             document.add(new Paragraph(" "));
             PdfPTable txTable = new PdfPTable(new float[]{1, 5, 5, 3, 3});
@@ -161,10 +168,6 @@ public class ReportController {
                         lightGray);
             }
             document.add(txTable);
-
-            // Space before signature
-           // document.add(Chunk.NEWLINE);
-            //document.add(Chunk.NEWLINE);
             document.add(Chunk.NEWLINE);
 
             // Signature area
@@ -189,7 +192,6 @@ public class ReportController {
             signatureTable.addCell(approvedByCell);
 
             document.add(signatureTable);
-
             document.close();
 
             byte[] pdfBytes = out.toByteArray();
@@ -206,7 +208,6 @@ public class ReportController {
         }
     }
 
-    // Adds a colored header row with white text
     private void addColoredTableHeader(PdfPTable table, Font font, BaseColor bgColor, String... headers) {
         for (String header : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(header, font));
@@ -218,7 +219,6 @@ public class ReportController {
         }
     }
 
-    // Adds a row with 4 columns + zebra striping effect
     private void addTableRow(PdfPTable table, Font font, int number, String col1, String col2, String col3, BaseColor bgColor) {
         PdfPCell cell;
 
@@ -245,7 +245,6 @@ public class ReportController {
         table.addCell(cell);
     }
 
-    // Adds a row with 5 columns + zebra striping effect
     private void addTableRow(PdfPTable table, Font font, int number, String col1, String col2, String col3, String col4, BaseColor bgColor) {
         PdfPCell cell;
 

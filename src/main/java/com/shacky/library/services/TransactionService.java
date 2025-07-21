@@ -3,6 +3,7 @@ package com.shacky.library.services;
 import com.shacky.library.dtos.TransactionDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TransactionService {
 
@@ -15,8 +16,8 @@ public interface TransactionService {
     // Find a transaction by its ID
     TransactionDto getTransactionById(Long id);
 
+    // Search transactions by user name
     List<TransactionDto> searchTransactionsByUser(String search);
-
 
     // Get all transactions
     List<TransactionDto> getAllTransactions();
@@ -35,4 +36,10 @@ public interface TransactionService {
 
     // Return a book (sets status to "returned" and updates returnDate)
     TransactionDto returnBook(Long transactionId);
+
+    // Live search
+    List<Map<String, Object>> searchBookTitles(String query);
+
+    List<Map<String, Object>> searchUserNames(String query);
+
 }

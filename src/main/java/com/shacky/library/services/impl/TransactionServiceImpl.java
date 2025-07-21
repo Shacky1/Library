@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,9 +33,14 @@ public class TransactionServiceImpl implements TransactionService {
                 .id(transaction.getId())
                 .bookId(transaction.getBook().getId())
                 .bookTitle(transaction.getBook().getTitle())
+                .bookSubject(transaction.getBook().getSubject())
+                .bookNumber(transaction.getBook().getBookNumber())
+                .bookGradeLevel(transaction.getBook().getGradeLevel())
                 .userId(transaction.getUser().getId())
                 .userFirstName(transaction.getUser().getFirstName())
+                .userMiddleName(transaction.getUser().getMiddleName())
                 .userLastName(transaction.getUser().getLastName())
+                .userEmail(transaction.getUser().getEmail())
                 .status(transaction.getStatus())
                 .borrowDate(transaction.getBorrowDate())
                 .returnDate(transaction.getReturnDate())
@@ -42,19 +48,11 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private Transaction mapToEntity(TransactionDto dto) {
-        // Find Book by title, subject, author - throw if not found
-        Book book = bookRepository.findByTitleAndSubjectAndAuthor(
-                dto.getBookTitle(), dto.getBookSubject(), dto.getBookAuthor()
-        ).orElseThrow(() -> new RuntimeException(
-                "Book not found: " + dto.getBookTitle() + ", " + dto.getBookSubject() + ", " + dto.getBookAuthor()
-        ));
+        Book book = bookRepository.findById(dto.getBookId())
+                .orElseThrow(() -> new RuntimeException("Book not found with ID: " + dto.getBookId()));
 
-        // Find User by firstName and lastName - throw if not found
-        User user = userRepository.findByFirstNameAndLastName(
-                dto.getUserFirstName(), dto.getUserLastName()
-        ).orElseThrow(() -> new RuntimeException(
-                "User not found: " + dto.getUserFirstName() + " " + dto.getUserLastName()
-        ));
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + dto.getUserId()));
 
         return Transaction.builder()
                 .book(book)
@@ -70,16 +68,12 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = mapToEntity(dto);
         Book book = transaction.getBook();
 
-        if (book.getAvailableCopies() <= 0) {
-            throw new RuntimeException("No available copies for book: " + book.getTitle());
-        }
 
         transaction.setStatus("borrowed");
         transaction.setBorrowDate(LocalDate.now());
 
         Transaction saved = transactionRepository.save(transaction);
 
-        book.setAvailableCopies(book.getAvailableCopies() - 1);
         bookRepository.save(book);
 
         return mapToDto(saved);
@@ -89,9 +83,11 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionDto updateTransaction(Long id, TransactionDto dto) {
         Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transaction not found with ID: " + id));
+
         transaction.setStatus(dto.getStatus());
         transaction.setBorrowDate(dto.getBorrowDate());
         transaction.setReturnDate(dto.getReturnDate());
+
         return mapToDto(transactionRepository.save(transaction));
     }
 
@@ -140,6 +136,7 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionDto returnBook(Long transactionId) {
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new RuntimeException("Transaction not found with ID: " + transactionId));
+
         if (!"borrowed".equals(transaction.getStatus())) {
             throw new IllegalStateException("Book is not currently borrowed.");
         }
@@ -148,7 +145,6 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setReturnDate(LocalDate.now());
 
         Book book = transaction.getBook();
-        book.setAvailableCopies(book.getAvailableCopies() + 1);
         bookRepository.save(book);
 
         return mapToDto(transactionRepository.save(transaction));
@@ -159,6 +155,44 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.searchByUserName(search)
                 .stream()
                 .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    // LIVE SEARCH: return list of { id, name } maps
+    @Override
+    public List<Map<String, Object>> searchBookTitles(String query) {
+        List<Long> borrowedBookIds = transactionRepository.findByStatus("borrowed")
+                .stream()
+                .map(t -> t.getBook().getId())
+                .collect(Collectors.toList());
+
+        return bookRepository.findByTitleContainingIgnoreCase(query)
+                .stream()
+                .filter(book -> !borrowedBookIds.contains(book.getId())) //  Exclude borrowed books
+                .map(book -> {
+                    Map<String, Object> result = new java.util.HashMap<>();
+                    result.put("id", book.getId());
+                    result.put("name", book.getTitle());
+                    result.put("subject", book.getSubject());
+                    result.put("author", book.getAuthor());
+                    result.put("grade", book.getGradeLevel());
+                    result.put("number", book.getBookNumber());
+                    return result;
+                })
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<Map<String, Object>> searchUserNames(String query) {
+        return userRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(query, query)
+                .stream()
+                .map(user -> {
+                    Map<String, Object> result = new java.util.HashMap<>();
+                    result.put("id", user.getId());
+                    result.put("name", user.getFirstName() + " " +user.getMiddleName()+ " " + user.getLastName());
+                    return result;
+                })
                 .collect(Collectors.toList());
     }
 

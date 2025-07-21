@@ -19,4 +19,7 @@ public interface UserService {
 
     // Delete user by id
     void deleteUser(Long id);
+
+    boolean existsByFullName(String firstName, String middleName, String lastName);
+
 }

@@ -23,8 +23,7 @@ public class LibraryServiceImpl implements LibraryService {
 
     @Override
     public long countBooks() {
-        Long total = bookRepository.sumTotalCopies();
-        return total != null ? total : 0L;
+        return bookRepository.count();
     }
 
     @Override

@@ -27,25 +27,38 @@ public class UserController {
         return "users/list";  // Thymeleaf template: users/list.html
     }
 
-    // Show form to create new user
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("userDto", new UserDto());
         model.addAttribute("title", "Add New User");
-        return "users/form";  // Thymeleaf template: users/form.html
+        return "users/form";
     }
 
-    // Handle POST to create new user
     @PostMapping
     public String createUser(@Valid @ModelAttribute("userDto") UserDto userDto,
                              BindingResult result, Model model) {
+
+        boolean exists = userService.existsByFullName(
+                userDto.getFirstName(),
+                userDto.getMiddleName(),
+                userDto.getLastName()
+        );
+
+        if (exists) {
+            result.reject("user.exists", "User with the same full name already exists.");
+        }
+
         if (result.hasErrors()) {
             model.addAttribute("title", "Add New User");
             return "users/form";
         }
+
         userService.createUser(userDto);
         return "redirect:/users";
     }
+
+
+
 
     // Show form to edit existing user
     @GetMapping("/edit/{id}")

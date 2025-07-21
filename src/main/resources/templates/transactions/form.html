@@ -2,9 +2,19 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" /> <!-- Add viewport -->
     <title th:text="${title}">Transaction Form</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .autocomplete-suggestions {
+            position: absolute;
+            z-index: 1000;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body class="bg-light">
 
@@ -13,54 +23,41 @@
         <div class="card-header bg-primary text-white">
             <h4 class="mb-0" th:text="${title}">Transaction Form</h4>
         </div>
+
         <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
 
         <div class="card-body">
             <form th:action="${transactionDto.id} == null ? @{/transactions} : @{/transactions/{id}(id=${transactionDto.id})}"
                   th:object="${transactionDto}" method="post">
 
-                <!-- Book Details -->
-                <h5 class="text-primary">Book Details</h5>
-                <div class="row g-3 mb-4"> <!-- Add gap for spacing -->
-                    <div class="col-12 col-md-4">
-                        <label for="bookTitle" class="form-label">Title</label>
-                        <input type="text" id="bookTitle" th:field="*{bookTitle}" class="form-control" required />
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <label for="bookSubject" class="form-label">Subject</label>
-                        <input type="text" id="bookSubject" th:field="*{bookSubject}" class="form-control" required />
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <label for="bookAuthor" class="form-label">Book Author</label>
-                        <input type="text" id="bookAuthor" th:field="*{bookAuthor}" class="form-control" required />
+                <!-- Book Live Search -->
+                <h5 class="text-primary">Book</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-12 position-relative">
+                        <label for="bookTitle" class="form-label">Book Title</label>
+                        <input type="text" id="bookTitle" name="bookTitle"
+                               th:field="*{bookTitle}" class="form-control" autocomplete="off" required />
+                        <input type="hidden" id="bookId" name="bookId" th:field="*{bookId}" />
+                        <ul class="list-group autocomplete-suggestions" id="bookSuggestions"></ul>
                     </div>
                 </div>
 
-                <!-- User Details -->
-                <h5 class="text-primary">User Details</h5>
+                <!-- User Live Search -->
+                <h5 class="text-primary">User</h5>
                 <div class="row g-3 mb-4">
-                    <div class="col-12 col-md-4">
-                        <label for="userFirstName" class="form-label">First Name</label>
-                        <input type="text" id="userFirstName" th:field="*{userFirstName}" class="form-control" required />
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <label for="userLastName" class="form-label">Last Name</label>
-                        <input type="text" id="userLastName" th:field="*{userLastName}" class="form-control" required />
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <label for="userType" class="form-label">Type</label>
-                        <select id="userType" th:field="*{userType}" class="form-select" required>
-                            <option value="" disabled>Select type</option>
-                            <option value="Teacher">Teacher</option>
-                            <option value="Student">Student</option>
-                        </select>
+                    <div class="col-12 position-relative">
+                        <label for="userName" class="form-label">User Name</label>
+                        <input type="text" id="userName" name="userName"
+                               th:field="*{userFirstName}" class="form-control" autocomplete="off" required />
+                        <input type="hidden" id="userId" name="userId" th:field="*{userId}" />
+                        <ul class="list-group autocomplete-suggestions" id="userSuggestions"></ul>
                     </div>
                 </div>
 
                 <!-- Transaction Info -->
                 <h5 class="text-primary">Transaction Info</h5>
                 <div class="row g-3 mb-4">
-                    <div class="col-12 col-md-4">
+                    <div class="col-md-4">
                         <label for="status" class="form-label">Status</label>
                         <select id="status" th:field="*{status}" class="form-select" required>
                             <option value="" disabled>Select status</option>
@@ -68,13 +65,13 @@
                             <option value="returned">Returned</option>
                         </select>
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-md-4">
                         <label for="borrowDate" class="form-label">Borrow Date</label>
                         <input type="date" id="borrowDate" th:field="*{borrowDate}" class="form-control" required />
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-md-4">
                         <label for="returnDate" class="form-label">Return Date</label>
-                        <input type="date" id="returnDate" th:field="*{returnDate}" class="form-control" />
+                        <input type="date" id="returnDate" th:field="*{returnDate}" class="form-control" required />
                     </div>
                 </div>
 
@@ -88,6 +85,94 @@
     </div>
 </div>
 
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function setupLiveSearch(inputId, listId, hiddenId, endpoint, labelFormatter) {
+        const input = document.getElementById(inputId);
+        const list = document.getElementById(listId);
+        const hiddenInput = document.getElementById(hiddenId);
+
+        input.addEventListener('input', function () {
+            const query = this.value.trim();
+            hiddenInput.value = '';
+            list.innerHTML = '';
+            if (query.length < 2) return;
+
+            fetch(endpoint + '?query=' + encodeURIComponent(query))
+                .then(res => res.json())
+                .then(data => {
+                    list.innerHTML = '';
+                    data.forEach(item => {
+                        const li = document.createElement('li');
+                        li.classList.add('list-group-item', 'list-group-item-action');
+                        li.textContent = labelFormatter(item);
+                        li.dataset.id = item.id;
+                        li.addEventListener('click', () => {
+                            input.value = item.name;
+                            hiddenInput.value = item.id;
+                            list.innerHTML = '';
+                        });
+                        list.appendChild(li);
+                    });
+                })
+                .catch(() => {
+                    list.innerHTML = '';
+                });
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!list.contains(e.target) && e.target !== input) {
+                list.innerHTML = '';
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        setupLiveSearch(
+            'bookTitle', 'bookSuggestions', 'bookId',
+            '/transactions/search/books',
+            book => `${book.name} (by ${book.author}, ${book.subject},${book.grade}, Number ${book.number})`
+        );
+setupLiveSearch(
+    'userName',
+    'userSuggestions',
+    'userId',
+    '/transactions/search/users',
+    user => `${user.name}`  );
+
+
+        const borrowDateInput = document.getElementById('borrowDate');
+        const returnDateInput = document.getElementById('returnDate');
+        const form = document.querySelector('form');
+
+        // Today's date
+        const today = new Date().toISOString().split('T')[0];
+        borrowDateInput.setAttribute('min', today);
+
+        borrowDateInput.addEventListener('change', () => {
+            returnDateInput.setAttribute('min', borrowDateInput.value);
+        });
+
+        form.addEventListener('submit', function (e) {
+            const borrowDate = new Date(borrowDateInput.value);
+            const returnDate = new Date(returnDateInput.value);
+            const todayDate = new Date(today);
+
+            if (borrowDate < todayDate) {
+                alert("Borrow date cannot be in the past.");
+                e.preventDefault();
+                return;
+            }
+
+            if (returnDate < borrowDate) {
+                alert("Return date cannot be earlier than borrow date.");
+                e.preventDefault();
+                return;
+            }
+        });
+    });
+</script>
+
 </body>
 </html>

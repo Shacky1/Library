@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/transactions")
@@ -106,4 +107,18 @@ public class TransactionController {
         model.addAttribute("title", "Book Transactions");
         return "transactions/list";
     }
+
+    @GetMapping("/search/books")
+    @ResponseBody
+    public List<Map<String, Object>> searchBooks(@RequestParam("query") String query) {
+        return transactionService.searchBookTitles(query);
+    }
+
+    @GetMapping("/search/users")
+    @ResponseBody
+    public List<Map<String, Object>> searchUsers(@RequestParam("query") String query) {
+        return transactionService.searchUserNames(query);
+    }
+
+
 }
