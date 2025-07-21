@@ -7,6 +7,10 @@ import com.shacky.library.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -103,6 +107,38 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean existsByFullName(String firstName, String middleName, String lastName) {
         return userRepository.findByFirstNameAndMiddleNameAndLastName(firstName, middleName, lastName).isPresent();
+    }
+
+    @Override
+    public void importUsersFromExcel(MultipartFile file) throws Exception {
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null || row.getCell(0) == null) continue;
+
+                String firstName = row.getCell(0).getStringCellValue();
+                String middleName = row.getCell(1).getStringCellValue();
+                String lastName = row.getCell(2).getStringCellValue();
+                String email = row.getCell(3) != null ? row.getCell(3).getStringCellValue() : null;
+                String userType = row.getCell(4).getStringCellValue();
+                String clsRoom = row.getCell(5) != null ? row.getCell(5).getStringCellValue() : null;
+
+                UserDto userDto = UserDto.builder()
+                        .firstName(firstName)
+                        .middleName(middleName)
+                        .lastName(lastName)
+                        .email(email)
+                        .userType(userType)
+                        .clsRoom(clsRoom)
+                        .build();
+
+                // Avoid duplicate entry
+                if (!existsByFullName(firstName, middleName, lastName)) {
+                    createUser(userDto);
+                }
+            }
+        }
     }
 
 }
