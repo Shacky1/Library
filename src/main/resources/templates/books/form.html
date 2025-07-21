@@ -17,11 +17,11 @@
     </div>
 
     <div class="row min-vh-100">
-        <!-- Sidebar for small screens -->
+        <!-- Sidebar for mobile and desktop -->
         <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="sidebarMenu">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title text-primary">Library System</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
             </div>
             <div class="offcanvas-body">
                 <ul class="nav flex-column">
@@ -34,7 +34,6 @@
             </div>
         </div>
 
-        <!-- Sidebar for desktop -->
         <nav class="col-md-3 col-lg-2 d-none d-md-block bg-white border-end py-4">
             <h4 class="text-primary text-center">Library System</h4>
             <ul class="nav flex-column mt-4">
@@ -48,21 +47,22 @@
 
         <!-- Main content -->
         <main class="col-md-9 col-lg-10 px-4 py-4">
-            <div class="card shadow rounded-3">
+
+            <!-- Book Form Card -->
+            <div class="card shadow rounded-3 mb-4">
                 <div class="card-header bg-primary text-white">
                     <h4 th:text="${book.id == null ? 'Add New Book' : 'Edit Book'}">Book Form</h4>
                 </div>
                 <div class="card-body">
                     <form th:action="@{/books/save}" th:object="${book}" method="post">
                         <input type="hidden" th:field="*{id}" />
-
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Book Title</label>
                                 <input type="text" th:field="*{title}" class="form-control" required />
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Subject (e.g., Biology, Kiswahili)</label>
+                                <label class="form-label">Subject</label>
                                 <input type="text" th:field="*{subject}" class="form-control" />
                             </div>
                             <div class="col-md-6">
@@ -76,6 +76,7 @@
                                     <option value="Form V">Form V</option>
                                     <option value="Form VI">Form VI</option>
                                 </select>
+
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Author</label>
@@ -94,12 +95,12 @@
                                     <option value="Novel">Novel</option>
                                     <option value="Past Papers">Past Papers</option>
                                 </select>
+
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Book Number</label>
                                 <input type="text" th:field="*{bookNumber}" class="form-control" placeholder="00/00" />
                             </div>
-
                             <div class="col-md-6">
                                 <label class="form-label">Price (TSh)</label>
                                 <input type="number" step="0.01" th:field="*{price}" class="form-control" />
@@ -113,6 +114,23 @@
                     </form>
                 </div>
             </div>
+
+            <!-- Excel Import Card -->
+            <div class="card shadow rounded-3">
+                <div class="card-header bg-secondary text-white">
+                    <h5>Import Books from Excel</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/books/import}" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="excelFile" class="form-label">Choose Excel File (.xlsx or .xls)</label>
+                            <input type="file" name="file" id="excelFile" class="form-control" accept=".xlsx,.xls" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Import</button>
+                    </form>
+                </div>
+            </div>
+
         </main>
     </div>
 </div>

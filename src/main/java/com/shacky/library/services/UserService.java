@@ -1,6 +1,8 @@
 package com.shacky.library.services;
 
 import com.shacky.library.dtos.UserDto;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 public interface UserService {
@@ -21,5 +23,8 @@ public interface UserService {
     void deleteUser(Long id);
 
     boolean existsByFullName(String firstName, String middleName, String lastName);
+
+    void importUsersFromExcel(MultipartFile file) throws Exception;
+
 
 }

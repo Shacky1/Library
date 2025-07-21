@@ -109,6 +109,18 @@
                 <button type="submit" class="btn btn-primary">Save</button>
                 <a th:href="@{/users}" class="btn btn-secondary ms-2">Cancel</a>
             </form>
+
+            <hr class="my-5">
+
+            <h4>Import Users from Excel</h4>
+            <form th:action="@{/users/import}" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="file" class="form-label">Choose Excel file</label>
+                    <input type="file" name="file" id="file" class="form-control" accept=".xlsx,.xls" required>
+                </div>
+                <button type="submit" class="btn btn-success">Import</button>
+            </form>
+
         </main>
     </div>
 </div>

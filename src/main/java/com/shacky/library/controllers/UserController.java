@@ -9,6 +9,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @Controller
@@ -103,4 +105,16 @@ public class UserController {
         model.addAttribute("title", "User Details");
         return "users/view";  // Thymeleaf template: users/view.html
     }
+
+    @PostMapping("/import")
+    public String importUsersFromExcel(@RequestParam("file") MultipartFile file, Model model) {
+        try {
+            userService.importUsersFromExcel(file);
+            model.addAttribute("success", "Users imported successfully.");
+        } catch (Exception e) {
+            model.addAttribute("error", "Failed to import users: " + e.getMessage());
+        }
+        return "redirect:/users";
+    }
+
 }

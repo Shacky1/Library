@@ -7,6 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
 
@@ -74,4 +76,16 @@ public class BookController {
         model.addAttribute("book", optionalBook.get());
         return "books/details";
     }
+
+    @PostMapping("/import")
+    public String importBooksFromExcel(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
+        try {
+            bookService.importBooks(file);
+            redirectAttributes.addFlashAttribute("success", "Books imported successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to import: " + e.getMessage());
+        }
+        return "redirect:/books";
+    }
+
 }
