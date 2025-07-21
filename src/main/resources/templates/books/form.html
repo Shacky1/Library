@@ -97,8 +97,9 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Book Number</label>
-                                <input type="number" th:field="*{bookNumber}" class="form-control" />
+                                <input type="text" th:field="*{bookNumber}" class="form-control" placeholder="00/00" />
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label">Price (TSh)</label>
                                 <input type="number" step="0.01" th:field="*{price}" class="form-control" />

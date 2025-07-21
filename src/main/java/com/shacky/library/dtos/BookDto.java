@@ -17,7 +17,7 @@ public class BookDto {
     private int publicationYear;
     private String category;
     private double price;
-    private Long bookNumber;
+    private String bookNumber;
     private Long borrowCount;
 
     // Constructor used by JPQL query (if you don't use builder)
@@ -35,7 +35,7 @@ public class BookDto {
     }
 
     public BookDto(Long id, String title, String subject, String gradeLevel, String author, int publicationYear,
-                   String category, double price,Long bookNumber, Long borrowCount) {
+                   String category, double price,String bookNumber, Long borrowCount) {
         this.id = id;
         this.title = title;
         this.subject = subject;

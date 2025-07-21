@@ -23,6 +23,6 @@ public class Book {
     private int publicationYear;
     private String category;
     private double price;
-    private Long bookNumber;
+    private String bookNumber;
 
 }

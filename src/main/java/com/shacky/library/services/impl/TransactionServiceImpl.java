@@ -67,15 +67,10 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionDto createTransaction(TransactionDto dto) {
         Transaction transaction = mapToEntity(dto);
         Book book = transaction.getBook();
-
-
         transaction.setStatus("borrowed");
         transaction.setBorrowDate(LocalDate.now());
-
         Transaction saved = transactionRepository.save(transaction);
-
         bookRepository.save(book);
-
         return mapToDto(saved);
     }
 
