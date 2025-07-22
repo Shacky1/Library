@@ -53,6 +53,18 @@
                 <a class="btn btn-success" th:href="@{/books/new}">Add New Book</a>
             </div>
 
+            <!-- Page size selector -->
+            <form method="get" class="mb-3">
+                <label>Show
+                    <select name="size" onchange="this.form.submit()">
+                        <option th:selected="${size == 5}" value="5">5</option>
+                        <option th:selected="${size == 10}" value="10">10</option>
+                        <option th:selected="${size == 20}" value="20">20</option>
+                    </select> entries
+                </label>
+                <input type="hidden" name="page" th:value="${currentPage}" />
+            </form>
+
             <div class="table-responsive">
                 <table class="table table-bordered table-hover table-striped shadow-sm">
                     <thead class="table-dark">
@@ -70,15 +82,15 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="book, iterStat : ${books}">
-                        <td th:text="${iterStat.count}">1</td>
+                    <tr th:each="book, iterStat : ${bookPage.content}">
+                        <td th:text="${iterStat.index + 1 + (currentPage * size)}">1</td>
                         <td th:text="${book.title}">Title</td>
                         <td th:text="${book.subject}">Subject</td>
                         <td th:text="${book.author}">Author</td>
                         <td th:text="${book.gradeLevel}">Grade</td>
                         <td th:text="${book.publicationYear}">2023</td>
                         <td th:text="${book.category}">Category</td>
-                        <td th:text="${book.bookNumber}">Category</td>
+                        <td th:text="${book.bookNumber}">Number</td>
                         <td th:text="${book.price}">100.00</td>
                         <td>
                             <div class="btn-group" role="group">
@@ -89,17 +101,36 @@
                             </div>
                         </td>
                     </tr>
-                    <tr th:if="${books.size() == 0}">
+                    <tr th:if="${bookPage.totalElements == 0}">
                         <td colspan="11" class="text-center text-muted">No books found.</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mt-4">
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/books(page=${currentPage - 1}, size=${size})}">Previous</a>
+                    </li>
+
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link" th:href="@{/books(page=${i}, size=${size})}" th:text="${i + 1}">1</a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
+                        <a class="page-link" th:href="@{/books(page=${currentPage + 1}, size=${size})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
         </main>
     </div>
 </div>
 
-<!-- Bootstrap Bundle with JS (for offcanvas to work) -->
+<!-- Bootstrap Bundle with JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

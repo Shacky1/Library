@@ -3,6 +3,9 @@ package com.shacky.library.controllers;
 import com.shacky.library.dtos.UserDto;
 import com.shacky.library.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,12 +25,23 @@ public class UserController {
 
     // List all users
     @GetMapping
-    public String listUsers(Model model) {
-        List<UserDto> users = userService.getAllUsers();
-        model.addAttribute("users", users);
+    public String listUsers(@RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "10") int size,
+                            Model model) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<UserDto> userPage = userService.getAllUsers(pageable);
+
         model.addAttribute("title", "Users");
-        return "users/list";  // Thymeleaf template: users/list.html
+        model.addAttribute("userPage", userPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
+        model.addAttribute("totalPages", userPage.getTotalPages());
+        model.addAttribute("serialStart", page * size);
+
+        return "users/list";
     }
+
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {

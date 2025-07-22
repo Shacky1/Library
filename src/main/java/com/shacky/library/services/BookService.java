@@ -1,8 +1,9 @@
 package com.shacky.library.services;
 
 import com.shacky.library.dtos.BookDto;
-import com.shacky.library.entities.Book;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,4 +15,6 @@ public interface BookService {
     void deleteBook(Long id);
     void importBooks(MultipartFile file) throws Exception;
 
+
+    Page<BookDto> getAllBooks(Pageable pageable);
 }

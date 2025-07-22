@@ -9,6 +9,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
@@ -21,9 +24,19 @@ public class BookController {
 
     // 1. List all books
     @GetMapping
-    public String listBooks(Model model) {
+    public String listBooks(@RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "10") int size,
+                            Model model) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BookDto> bookPage = bookService.getAllBooks(pageable);
+
         model.addAttribute("title", "Book List");
-        model.addAttribute("books", bookService.getAllBooks());
+        model.addAttribute("bookPage", bookPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("size", size);
+        model.addAttribute("totalPages", bookPage.getTotalPages());
+
         return "books/list";
     }
 
