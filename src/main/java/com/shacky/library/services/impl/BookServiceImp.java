@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -119,5 +121,10 @@ public class BookServiceImp implements BookService {
         } catch (Exception e) {
             return 0.0;
         }
+    }
+
+    @Override
+    public Page<BookDto> getAllBooks(Pageable pageable) {
+        return bookRepository.findAll(pageable).map(this::convertToDto);
     }
 }

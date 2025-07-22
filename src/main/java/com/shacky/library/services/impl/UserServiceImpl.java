@@ -5,6 +5,8 @@ import com.shacky.library.entities.User;
 import com.shacky.library.repositories.UserRepository;
 import com.shacky.library.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import org.apache.poi.ss.usermodel.*;
@@ -92,12 +94,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+    public Page<UserDto> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(this::toDto);
     }
+
 
     @Override
     public void deleteUser(Long id) {
